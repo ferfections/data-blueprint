@@ -47,3 +47,42 @@ def get_files_to_process(target_path: Path) -> list[Path]:
                 
     return files_to_process
 
+def main() -> None:
+    parser = setup_parser()
+    args = parser.parse_args()
+    target_path = Path(args.input_path)
+
+    files = get_files_to_process(target_path)
+
+    if not files:
+        logger.warning("No se encontraron archivos validos para procesar.")
+        sys.exit(0)
+
+    logger.info(f"Iniciando procesamiento de {len(files)} archivo(s).")
+
+    for file_path in files:
+        ext = file_path.suffix.lower()
+        logger.info(f"Procesando archivo: {file_path.name} [{ext}]")
+        
+        # Bloque Try/Except para aislar errores por archivo
+        try:
+            if ext == '.csv':
+                # raw_metadata = process_csv_with_polars(file_path)
+                logger.info("  -> [Modulo CSV pendiente de implementacion]")
+                
+            elif ext == '.parquet':
+                # raw_metadata = process_parquet(file_path)
+                logger.info("  -> [Modulo Parquet pendiente de implementacion]")
+                
+            else:
+                logger.info(f"  -> [Modulo para {ext} pendiente de implementacion]")
+
+            # generate_markdown(raw_metadata)
+            # generate_json(raw_metadata)
+
+        except Exception as e:
+            # Si un archivo falla, registramos el error pero el bucle continua
+            logger.error(f"Error procesando {file_path.name}: {str(e)}", exc_info=False)
+
+    logger.info("Proceso completado.")
+
