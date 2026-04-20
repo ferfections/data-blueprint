@@ -13,6 +13,7 @@ logger = logging.getLogger("DataBlueprint")
 
 # Extensiones soportadas
 SUPPORTED_EXTENSIONS = {'.csv', '.parquet', '.json', '.jsonl'}
+
 def setup_parser() -> argparse.ArgumentParser:
     """Configura y devuelve el parser de argumentos de la linea de comandos."""
     parser = argparse.ArgumentParser(
@@ -86,3 +87,5 @@ def main() -> None:
 
     logger.info("Proceso completado.")
 
+if __name__ == "__main__":
+    main()
