@@ -101,6 +101,9 @@ def main() -> None:
             reporte_final = generate_markdown_report(raw_metadata)
 
             print(reporte_final)
+
+            path_generado = save_report(reporte_final, file_path)
+            logger.info(f"Reporte fisico creado en: {path_generado}")
             # generate_json(raw_metadata)
 
         except Exception as e:
