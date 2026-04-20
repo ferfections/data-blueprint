@@ -1,6 +1,0 @@
-id_item,nombre_item,categoria,stock_actual,reorden_automatico,ultima_revision
-ITM-01,Monitor 27in,Hardware,45,true,2023-12-01
-ITM-02,Raton Inalambrico,Hardware,120,true,2023-12-05
-ITM-03,Licencia Office,Software,,false,2023-11-20
-ITM-04,Teclado Mecanico,Hardware,15,true,2023-12-10
-ITM-05,Suscripcion Cloud,Servicios,1,false,

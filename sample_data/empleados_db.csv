@@ -1,6 +1,0 @@
-id_empleado,nombre_completo,dni,email_corporativo,telefono,departamento,salario,en_activo
-EMP-101,Laura Martinez,12345678A,laura.m@empresa.com,+34600111222,IT,45000.0,true
-EMP-102,Roberto Gomez,87654321B,roberto.g@empresa.com,,Ventas,32000.5,true
-EMP-103,Carmen Ruiz,11223344C,carmen.r@empresa.com,+34611222333,RRHH,38500.0,false
-EMP-104,Miguel Soto,55667788D,miguel.s@empresa.com,+34699888777,IT,,true
-EMP-105,Sofia Vega,99887766E,sofia.v@empresa.com,,Ventas,34000.0,true
