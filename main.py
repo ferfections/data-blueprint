@@ -1,7 +1,11 @@
 import argparse
 import sys
 import logging
+import pprint
+
 from pathlib import Path
+
+from datablueprint.core.csv_profiler import process_csv_with_polars
 
 # Configuracion del Logger (Nivel INFO por defecto)
 logging.basicConfig(
@@ -68,8 +72,9 @@ def main() -> None:
         # Bloque Try/Except para aislar errores por archivo
         try:
             if ext == '.csv':
-                # raw_metadata = process_csv_with_polars(file_path)
-                logger.info("  -> [Modulo CSV pendiente de implementacion]")
+                raw_metadata = process_csv_with_polars(file_path)
+                # Temporalmente, para ver que funciona, imprimimos el diccionario generado:
+                pprint.pprint(raw_metadata)
                 
             elif ext == '.parquet':
                 # raw_metadata = process_parquet(file_path)
