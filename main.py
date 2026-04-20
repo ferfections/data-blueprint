@@ -7,6 +7,7 @@ from pathlib import Path
 
 from datablueprint.core.csv_profiler import process_csv_with_polars
 from datablueprint.formatters.markdown_generator import generate_markdown_report
+from datablueprint.security.pii_masker import sanitize_sample
 
 # Configuracion del Logger (Nivel INFO por defecto)
 logging.basicConfig(
@@ -84,30 +85,32 @@ def main() -> None:
         ext = file_path.suffix.lower()
         logger.info(f"Procesando archivo: {file_path.name} [{ext}]")
         
-        # Bloque Try/Except para aislar errores por archivo
         try:
+            raw_metadata = None
+            
             if ext == '.csv':
                 raw_metadata = process_csv_with_polars(file_path)
-                # Temporalmente, para ver que funciona, imprimimos el diccionario generado:
-                pprint.pprint(raw_metadata)
-                
             elif ext == '.parquet':
-                # raw_metadata = process_parquet(file_path)
                 logger.info("  -> [Modulo Parquet pendiente de implementacion]")
-                
             else:
                 logger.info(f"  -> [Modulo para {ext} pendiente de implementacion]")
 
-            reporte_final = generate_markdown_report(raw_metadata)
+            if raw_metadata:
+                # --- NUEVA CAPA DE SEGURIDAD ---
+                # Sanitizamos la muestra antes de generar el informe
+                if "sample" in raw_metadata and raw_metadata["sample"]:
+                    logger.info("Aplicando reglas de seguridad PII a la muestra de datos...")
+                    raw_metadata["sample"] = sanitize_sample(raw_metadata["sample"])
+                # -------------------------------
 
-            print(reporte_final)
-
-            path_generado = save_report(reporte_final, file_path)
-            logger.info(f"Reporte fisico creado en: {path_generado}")
-            # generate_json(raw_metadata)
+                # Generamos el texto Markdown
+                reporte_final = generate_markdown_report(raw_metadata)
+                
+                # Guardamos el archivo fisico
+                path_generado = save_report(reporte_final, file_path)
+                logger.info(f"Reporte seguro creado en: {path_generado}")
 
         except Exception as e:
-            # Si un archivo falla, registramos el error pero el bucle continua
             logger.error(f"Error procesando {file_path.name}: {str(e)}", exc_info=False)
 
     logger.info("Proceso completado.")
