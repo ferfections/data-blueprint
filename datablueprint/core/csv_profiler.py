@@ -15,7 +15,8 @@ def process_csv_with_polars(file_path: Path) -> Dict[str, Any]:
     # 1. Metadatos del Sistema (Libreria estandar)
     system_metadata = {
         "file_name": file_path.name,
-        "file_path": str(file_path.absolute()),
+        # Usamos file_path.parent.name para obtener solo la carpeta contenedora
+        "file_path": f"{file_path.parent.name}/{file_path.name}",
         "size_bytes": file_path.stat().st_size,
         "extension": file_path.suffix.lower()
     }
