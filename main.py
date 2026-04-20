@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 
 # Importaciones de nuestros modulos
-from datablueprint.core.csv_profiler import process_csv_with_polars
+from datablueprint.core.profiler import process_csv, process_parquet, process_json
 from datablueprint.security.pii_masker import sanitize_sample
 from datablueprint.formatters.markdown_generator import generate_aggregated_markdown
 from datablueprint.formatters.json_generator import generate_aggregated_json
@@ -58,7 +58,13 @@ def main() -> None:
         try:
             raw_metadata = None
             if ext == '.csv':
-                raw_metadata = process_csv_with_polars(file_path)
+                raw_metadata = process_csv(file_path)
+            elif ext == '.parquet':
+                raw_metadata = process_parquet(file_path)
+            elif ext in ['.json', '.jsonl']:
+                raw_metadata = process_json(file_path)
+            else:
+                logger.info(f"  -> [Modulo para {ext} pendiente de implementacion]")
             
             if raw_metadata:
                 if "sample" in raw_metadata and raw_metadata["sample"]:
