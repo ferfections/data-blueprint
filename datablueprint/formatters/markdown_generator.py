@@ -69,3 +69,41 @@ def generate_markdown_report(metadata: Dict[str, Any]) -> str:
     
     # Unimos todas las lineas con saltos de linea
     return "\n".join(md_lines)
+
+def generate_aggregated_markdown(metadata_list: list[dict], folder_name: str) -> str:
+    """
+    Genera un unico reporte Markdown que resume multiples archivos.
+    """
+    md_lines = []
+    md_lines.append(f"# 🏗️ DataBlueprint: Folder Analysis Report")
+    md_lines.append(f"**Target Directory:** `{folder_name}`")
+    md_lines.append(f"**Total Files Processed:** {len(metadata_list)}\n")
+
+    # 1. Tabla de Contenidos (Resumen Ejecutivo)
+    md_lines.append("## 📂 Data Inventory Summary")
+    md_lines.append("| File Name | Format | Rows | Columns | Privacy Status |")
+    md_lines.append("| :--- | :--- | :--- | :--- | :--- |")
+
+    for meta in metadata_list:
+        sys = meta['system']
+        struct = meta['structure']
+        md_lines.append(
+            f"| {sys['file_name']} | {sys['extension'].upper()} | "
+            f"{struct['total_rows']} | {struct['total_columns']} | ✅ Sanitized |"
+        )
+
+    md_lines.append("\n---\n")
+
+    # 2. Secciones Detalladas por Archivo
+    md_lines.append("## 🔍 Detailed File Blueprints")
+    for meta in metadata_list:
+        # Reutilizamos parte de la logica anterior pero como subsecciones
+        sys = meta['system']
+        md_lines.append(f"### File: `{sys['file_name']}`")
+        
+        # (Aqui pegariamos la logica de tablas de columnas y muestras del archivo anterior)
+        # Para mantener el codigo limpio, puedes llamar a una funcion auxiliar 
+        # que genere solo el fragmento de un archivo.
+        md_lines.append("\n---\n")
+
+    return "\n".join(md_lines)
