@@ -24,3 +24,26 @@ def setup_parser() -> argparse.ArgumentParser:
         help="Ruta al archivo o carpeta a analizar."
     )
     return parser
+
+def get_files_to_process(target_path: Path) -> list[Path]:
+    """Valida la ruta y extrae la lista de archivos soportados."""
+    if not target_path.exists():
+        logger.error(f"La ruta especificada no existe: {target_path}")
+        sys.exit(1)
+
+    files_to_process = []
+
+    if target_path.is_file():
+        if target_path.suffix.lower() in SUPPORTED_EXTENSIONS:
+            files_to_process.append(target_path)
+        else:
+            logger.warning(f"Formato no soportado para el archivo: {target_path.name}")
+            
+    elif target_path.is_dir():
+        logger.info(f"Escaneando directorio: {target_path}")
+        for file_path in target_path.iterdir():
+            if file_path.is_file() and file_path.suffix.lower() in SUPPORTED_EXTENSIONS:
+                files_to_process.append(file_path)
+                
+    return files_to_process
+
