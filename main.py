@@ -7,6 +7,7 @@ from pathlib import Path
 from datablueprint.core.csv_profiler import process_csv_with_polars
 from datablueprint.security.pii_masker import sanitize_sample
 from datablueprint.formatters.markdown_generator import generate_aggregated_markdown
+from datablueprint.formatters.json_generator import generate_aggregated_json
 
 logging.basicConfig(
     level=logging.INFO,
@@ -69,22 +70,26 @@ def main() -> None:
 
     # Generacion del reporte consolidado en la raiz del proyecto
     if all_metadata:
-        # Path(__file__).parent nos da el directorio donde reside main.py (la raiz)
         project_root = Path(__file__).parent
-        
-        # Usamos el nombre del directorio de entrada para nombrar el reporte
         input_name = target_path.name if target_path.is_dir() else target_path.stem
-        report_filename = f"{input_name}_blueprint.md"
-        report_path = project_root / report_filename
-
-        # Llamamos al formateador que describe el contenido del directorio
-        final_report_md = generate_aggregated_markdown(all_metadata, input_name)
-
-        # Guardamos fisicamente en la raiz
-        with open(report_path, "w", encoding="utf-8") as f:
-            f.write(final_report_md)
         
-        logger.info(f"Reporte del directorio generado con exito en: {report_path}")
+        # 1. Generar y guardar Markdown
+        md_filename = f"{input_name}_blueprint.md"
+        md_path = project_root / md_filename
+        final_report_md = generate_aggregated_markdown(all_metadata, input_name)
+        
+        with open(md_path, "w", encoding="utf-8") as f:
+            f.write(final_report_md)
+        logger.info(f"Reporte MD generado en: {md_path}")
+
+        # 2. Generar y guardar JSON
+        json_filename = f"{input_name}_blueprint.json"
+        json_path = project_root / json_filename
+        final_report_json = generate_aggregated_json(all_metadata, input_name)
+        
+        with open(json_path, "w", encoding="utf-8") as f:
+            f.write(final_report_json)
+        logger.info(f"Reporte JSON generado en: {json_path}")
 
 if __name__ == "__main__":
     main()
