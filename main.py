@@ -6,6 +6,7 @@ import pprint
 from pathlib import Path
 
 from datablueprint.core.csv_profiler import process_csv_with_polars
+from datablueprint.formatters.markdown_generator import generate_markdown_report
 
 # Configuracion del Logger (Nivel INFO por defecto)
 logging.basicConfig(
@@ -52,6 +53,20 @@ def get_files_to_process(target_path: Path) -> list[Path]:
                 
     return files_to_process
 
+def save_report(content: str, original_path: Path, extension: str = "md") -> Path:
+    """
+    Guarda el contenido generado en un archivo fisico.
+    El nombre sera: nombre_original_blueprint.extension
+    """
+    report_name = f"{original_path.stem}_blueprint.{extension}"
+    # Guardamos el reporte en la misma carpeta que el archivo original
+    report_path = original_path.parent / report_name
+    
+    with open(report_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    
+    return report_path
+
 def main() -> None:
     parser = setup_parser()
     args = parser.parse_args()
@@ -83,7 +98,9 @@ def main() -> None:
             else:
                 logger.info(f"  -> [Modulo para {ext} pendiente de implementacion]")
 
-            # generate_markdown(raw_metadata)
+            reporte_final = generate_markdown_report(raw_metadata)
+
+            print(reporte_final)
             # generate_json(raw_metadata)
 
         except Exception as e:
