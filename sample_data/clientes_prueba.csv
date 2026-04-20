@@ -1,0 +1,11 @@
+id_cliente,nombre,email,edad,plan_suscripcion,fecha_registro,gasto_total,activo
+1001,Ana Garcia,ana.g@email.com,28,Pro,2023-01-15,150.50,true
+1002,Carlos Ruiz,carlos.r@email.com,,Basic,2023-02-20,0.00,false
+1003,Beatriz Lopez,,35,Pro,2023-03-05,450.75,true
+1004,David San,david.s@email.com,42,Ultra,,890.20,true
+1005,Elena Tur,,21,Basic,2023-05-12,,false
+1006,Fernando Pi,fer.p@email.com,30,Pro,2023-06-18,210.00,true
+1007,Gema Sol,gema.s@email.com,28,Basic,2023-07-22,340.15,true
+1008,Hugo Paz,,,Basic,2023-08-30,12.50,false
+1009,Ines Rey,ines.r@email.com,55,Ultra,2023-09-10,1250.00,true
+1010,Juan Ros,juan.r@email.com,33,Basic,2023-10-05,75.00,false
