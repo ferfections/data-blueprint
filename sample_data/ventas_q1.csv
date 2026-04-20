@@ -1,0 +1,8 @@
+id_venta,fecha,id_producto,cantidad,precio_unitario,metodo_pago
+V-001,2024-01-02,PROD-A,5,12.50,Tarjeta
+V-002,2024-01-03,PROD-B,1,145.00,Transferencia
+V-003,2024-01-05,PROD-A,10,12.50,
+V-004,2024-01-10,PROD-C,2,89.99,Tarjeta
+V-005,2024-01-12,PROD-B,1,145.00,Efectivo
+V-006,2024-01-15,PROD-C,,,Tarjeta
+V-007,2024-01-20,PROD-A,3,12.50,Tarjeta
