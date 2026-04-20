@@ -2,11 +2,13 @@ import argparse
 import sys
 import logging
 import pprint
+import os
 
+from datetime import datetime
 from pathlib import Path
 
 from datablueprint.core.csv_profiler import process_csv_with_polars
-from datablueprint.formatters.markdown_generator import generate_markdown_report
+from datablueprint.formatters.markdown_generator import generate_aggregated_markdown
 from datablueprint.security.pii_masker import sanitize_sample
 
 # Configuracion del Logger (Nivel INFO por defecto)
@@ -74,46 +76,54 @@ def main() -> None:
     target_path = Path(args.input_path)
 
     files = get_files_to_process(target_path)
-
     if not files:
-        logger.warning("No se encontraron archivos validos para procesar.")
+        logger.warning("No se encontraron archivos validos.")
         sys.exit(0)
 
-    logger.info(f"Iniciando procesamiento de {len(files)} archivo(s).")
+    # Lista para acumular todos los metadatos
+    all_metadata = []
+
+    logger.info(f"Iniciando analisis de carpeta: {target_path.name}")
 
     for file_path in files:
         ext = file_path.suffix.lower()
-        logger.info(f"Procesando archivo: {file_path.name} [{ext}]")
-        
         try:
             raw_metadata = None
-            
             if ext == '.csv':
                 raw_metadata = process_csv_with_polars(file_path)
-            elif ext == '.parquet':
-                logger.info("  -> [Modulo Parquet pendiente de implementacion]")
-            else:
-                logger.info(f"  -> [Modulo para {ext} pendiente de implementacion]")
-
+            
             if raw_metadata:
-                # --- NUEVA CAPA DE SEGURIDAD ---
-                # Sanitizamos la muestra antes de generar el informe
-                if "sample" in raw_metadata and raw_metadata["sample"]:
-                    logger.info("Aplicando reglas de seguridad PII a la muestra de datos...")
+                # Sanitizar muestra
+                if "sample" in raw_metadata:
                     raw_metadata["sample"] = sanitize_sample(raw_metadata["sample"])
-                # -------------------------------
-
-                # Generamos el texto Markdown
-                reporte_final = generate_markdown_report(raw_metadata)
                 
-                # Guardamos el archivo fisico
-                path_generado = save_report(reporte_final, file_path)
-                logger.info(f"Reporte seguro creado en: {path_generado}")
+                all_metadata.append(raw_metadata)
+                logger.info(f"Metadatos extraidos de {file_path.name}")
 
         except Exception as e:
-            logger.error(f"Error procesando {file_path.name}: {str(e)}", exc_info=False)
+            logger.error(f"Error en {file_path.name}: {str(e)}")
 
-    logger.info("Proceso completado.")
+    # Generar reporte unico si hay datos
+    if all_metadata:
+        # 1. Crear carpeta de reportes en la raiz del proyecto
+        # Path(__file__).parent.parent asume que main.py esta en la raiz o cerca
+        project_root = Path(__file__).parent
+        reports_dir = project_root / "data-blueprint-reports"
+        reports_dir.mkdir(exist_ok=True)
+
+        # 2. Generar nombre intuitivo (basado en la carpeta o timestamp)
+        folder_name = target_path.name if target_path.is_dir() else "single_file"
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+        report_filename = f"Blueprint_{folder_name}_{timestamp}.md"
+        report_path = reports_dir / report_filename
+
+        # 3. Llamar al nuevo formateador de agregacion
+        final_report_md = generate_aggregated_markdown(all_metadata, folder_name)
+
+        with open(report_path, "w", encoding="utf-8") as f:
+            f.write(final_report_md)
+        
+        logger.info(f"Reporte consolidado generado con exito en: {report_path}")
 
 if __name__ == "__main__":
     main()
