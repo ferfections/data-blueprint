@@ -32,7 +32,7 @@ dev = ["build", "twine", "pytest"]
 "Bug Tracker" = "https://github.com/tu-usuario/data-blueprint/issues"
 
 [project.scripts]
-data-blueprint = "main:main"
+data-blueprint = "datablueprint.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
