@@ -30,7 +30,7 @@ El proyecto requiere Python 3.9 o superior y funciona mediante un CLI (Command L
 1. Clona el repositorio:
    ```bash
    git clone https://github.com/ferfections/data-blueprint.git
-   cd DataBlueprint
+   cd data-blueprint
    ```
 
 2. Crea y activa un entorno virtual (Recomendado):
