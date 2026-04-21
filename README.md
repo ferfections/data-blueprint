@@ -29,6 +29,69 @@ Ademas, incluye un motor de validacion de contratos de datos para detectar mutac
 El proyecto requiere Python 3.9 o superior y funciona mediante un CLI (Command Line Interface).
 
 1. Clona el repositorio:
-   ```bash
    git clone https://github.com/ferfections/data-blueprint.git
-   cd data-blueprint
+   cd DataBlueprint
+
+2. Crea y activa un entorno virtual (Recomendado):
+   python -m venv .venv
+   source .venv/bin/activate  # En Windows usa: .venv\Scripts\activate
+
+3. Instala el paquete en modo editable (esto instalara Polars y configurara el comando CLI):
+   pip install -e .
+
+---
+
+## Guia de Uso
+
+Una vez instalado, el comando `data-blueprint` estara disponible globalmente en tu terminal. La herramienta tiene dos modos de operacion principales:
+
+### 1. Generacion de Blueprints (Perfilado)
+Para extraer los metadatos de un archivo o de una carpeta entera, pasa la ruta como argumento.
+
+# Analizar un directorio completo (Recomendado)
+data-blueprint ruta/a/mi_landing_zone/
+
+# Analizar un archivo individual
+data-blueprint ruta/a/mis_datos/clientes.parquet
+
+**Salida:** El programa generara dos archivos en el directorio donde ejecutaste el comando:
+* `[nombre]_blueprint.md`: Resumen tabular listo para lectura humana o para adjuntar a ChatGPT/Claude.
+* `[nombre]_blueprint.json`: Diccionario de datos estructurado listo para integraciones M2M.
+
+### 2. Deteccion de Schema Drift (Auditoria)
+Para comprobar si la estructura de tus datos ha mutado sin previo aviso, puedes comparar un Blueprint que generaste en el pasado (tu "contrato") con uno generado hoy.
+
+data-blueprint --compare contrato_ayer.json datos_hoy.json
+
+**Salida:** El sistema analizara ambos archivos e imprimira por terminal un reporte critico si detecta:
+* Archivos desaparecidos.
+* Columnas eliminadas o añadidas.
+* Mutaciones en los tipos de datos (ej. de `Float64` a `String`).
+Si todo esta en orden, confirmara que el contrato se cumple al 100%.
+
+---
+
+## Estructura del Proyecto
+
+DataBlueprint/
+├── datablueprint/
+│   ├── __init__.py
+│   ├── cli.py                    # Interfaz de linea de comandos y orquestador principal
+│   ├── core/
+│   │   ├── profiler.py           # Logica de extraccion con Polars
+│   │   └── drift_detector.py     # Motor de deteccion de Schema Drift
+│   ├── formatters/
+│   │   ├── json_generator.py     # Generador de reportes JSON
+│   │   └── markdown_generator.py # Generador de reportes Markdown
+│   └── security/
+│       └── pii_masker.py         # Reglas de enmascaramiento de datos sensibles
+├── pyproject.toml                # Configuracion de construccion y dependencias de PyPI
+├── requirements.txt              # Alternativa para entornos estaticos
+├── DataBlueprint_logo.png        # Banner del proyecto
+└── README.md
+
+
+## Proximos Pasos (Roadmap)
+* **Fase 2:** Desarrollo de una Interfaz Grafica de Usuario (GUI) interactiva utilizando Streamlit.
+* **Code Gen:** Modulo para generar sentencias SQL DDL automaticamente desde el Blueprint JSON.
+* **NLP Security:** Integracion de modelos avanzados para deteccion de PII por contexto.
