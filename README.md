@@ -1,8 +1,7 @@
+# DataBlueprint
 <p align="center">
   <img src="DataBlueprint_logo.png" alt="DataBlueprint Banner" width="100%">
 </p>
-
-# DataBlueprint
 
 Motor de perfilado de datos, generacion de contexto seguro para Inteligencia Artificial y deteccion de *Schema Drift*.
 
