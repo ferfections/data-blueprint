@@ -83,7 +83,7 @@ Si todo esta en orden, confirmara que el contrato se cumple al 100%.
 ---
 
 ## Estructura del Proyecto
-
+```bash
 DataBlueprint/
 ├── datablueprint/
 │   ├── __init__.py
@@ -100,7 +100,7 @@ DataBlueprint/
 ├── requirements.txt              # Alternativa para entornos estaticos
 ├── DataBlueprint_logo.png        # Banner del proyecto
 └── README.md
-
+```
 
 ## Proximos Pasos (Roadmap)
 * **Fase 2:** Desarrollo de una Interfaz Grafica de Usuario (GUI) interactiva utilizando Streamlit.
