@@ -3,11 +3,11 @@ import sys
 import logging
 from pathlib import Path
 
-# Importaciones de nuestros modulos
 from datablueprint.core.profiler import process_csv, process_parquet, process_json
 from datablueprint.security.pii_masker import sanitize_sample
 from datablueprint.formatters.markdown_generator import generate_aggregated_markdown
 from datablueprint.formatters.json_generator import generate_aggregated_json
+from datablueprint.core.drift_detector import compare_blueprints
 
 logging.basicConfig(
     level=logging.INFO,
@@ -19,8 +19,19 @@ logger = logging.getLogger("DataBlueprint")
 SUPPORTED_EXTENSIONS = {'.csv', '.parquet', '.json', '.jsonl'}
 
 def setup_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="DataBlueprint: Extrae metadatos para contexto de IA.")
-    parser.add_argument("input_path", type=str, help="Ruta a la carpeta o archivo a analizar.")
+    parser = argparse.ArgumentParser(description="DataBlueprint: Extrae metadatos y detecta Schema Drift.")
+    
+    # Argumento posicional opcional (nargs='?')
+    parser.add_argument("input_path", type=str, nargs="?", help="Ruta a la carpeta o archivo a analizar.")
+    
+    # Nuevo argumento para comparar
+    parser.add_argument(
+        "--compare", 
+        nargs=2, 
+        metavar=('CONTRATO.json', 'NUEVO.json'),
+        help="Compara dos archivos JSON para detectar Schema Drift."
+    )
+    
     return parser
 
 def get_files_to_process(target_path: Path) -> list[Path]:
@@ -29,9 +40,8 @@ def get_files_to_process(target_path: Path) -> list[Path]:
         sys.exit(1)
 
     files_to_process = []
-    if target_path.is_file():
-        if target_path.suffix.lower() in SUPPORTED_EXTENSIONS:
-            files_to_process.append(target_path)
+    if target_path.is_file() and target_path.suffix.lower() in SUPPORTED_EXTENSIONS:
+        files_to_process.append(target_path)
     elif target_path.is_dir():
         logger.info(f"Escaneando directorio de entrada: {target_path}")
         for file_path in target_path.iterdir():
@@ -43,11 +53,23 @@ def get_files_to_process(target_path: Path) -> list[Path]:
 def main() -> None:
     parser = setup_parser()
     args = parser.parse_args()
-    target_path = Path(args.input_path)
 
+    # Si el usuario quiere comparar, ejecutamos esa ruta y salimos
+    if args.compare:
+        compare_blueprints(args.compare[0], args.compare[1])
+        sys.exit(0)
+
+    # Si no usa --compare y tampoco pasa una ruta, mostramos la ayuda
+    if not args.input_path:
+        parser.print_help()
+        sys.exit(1)
+
+    # Flujo original de generacion de blueprints
+    target_path = Path(args.input_path)
     files = get_files_to_process(target_path)
+    
     if not files:
-        logger.warning("No se encontraron archivos validos en el directorio especificado.")
+        logger.warning("No se encontraron archivos validos.")
         sys.exit(0)
 
     all_metadata = []
@@ -63,8 +85,6 @@ def main() -> None:
                 raw_metadata = process_parquet(file_path)
             elif ext in ['.json', '.jsonl']:
                 raw_metadata = process_json(file_path)
-            else:
-                logger.info(f"  -> [Modulo para {ext} pendiente de implementacion]")
             
             if raw_metadata:
                 if "sample" in raw_metadata and raw_metadata["sample"]:
@@ -74,28 +94,19 @@ def main() -> None:
         except Exception as e:
             logger.error(f"Error procesando {file_path.name}: {str(e)}")
 
-    # Generacion del reporte consolidado en la raiz del proyecto
     if all_metadata:
-        project_root = Path(__file__).parent
+        project_root = Path.cwd() # Usamos Current Working Directory para guardar donde se ejecuta el comando
         input_name = target_path.name if target_path.is_dir() else target_path.stem
         
-        # 1. Generar y guardar Markdown
-        md_filename = f"{input_name}_blueprint.md"
-        md_path = project_root / md_filename
-        final_report_md = generate_aggregated_markdown(all_metadata, input_name)
-        
+        md_path = project_root / f"{input_name}_blueprint.md"
         with open(md_path, "w", encoding="utf-8") as f:
-            f.write(final_report_md)
-        logger.info(f"Reporte MD generado en: {md_path}")
-
-        # 2. Generar y guardar JSON
-        json_filename = f"{input_name}_blueprint.json"
-        json_path = project_root / json_filename
-        final_report_json = generate_aggregated_json(all_metadata, input_name)
+            f.write(generate_aggregated_markdown(all_metadata, input_name))
         
+        json_path = project_root / f"{input_name}_blueprint.json"
         with open(json_path, "w", encoding="utf-8") as f:
-            f.write(final_report_json)
-        logger.info(f"Reporte JSON generado en: {json_path}")
+            f.write(generate_aggregated_json(all_metadata, input_name))
+            
+        logger.info(f"Reportes generados en {project_root}")
 
 if __name__ == "__main__":
     main()
