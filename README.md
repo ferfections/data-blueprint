@@ -30,5 +30,5 @@ El proyecto requiere Python 3.9 o superior y funciona mediante un CLI (Command L
 
 1. Clona el repositorio:
    ```bash
-   git clone [https://github.com/tu-usuario/DataBlueprint.git](https://github.com/tu-usuario/DataBlueprint.git)
-   cd DataBlueprint
+   git clone [https://github.com/ferfections/data-blueprint.git](https://github.com/tu-usuario/DataBlueprint.git)
+   cd data-blueprint
