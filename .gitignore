@@ -1,72 +1,60 @@
-# ==========================================
-# Archivos de Python
-# ==========================================
-# Caché y archivos compilados
+# =========================
+# Python & Compilacion
+# =========================
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
 
-# Entornos virtuales
-.env
-.venv
-env/
+# =========================
+# Entornos Virtuales
+# =========================
+.venv/
 venv/
+env/
 ENV/
 
-# Herramientas de empaquetado y distribución
+# =========================
+# Distribucion y Paquetes (PyPI)
+# =========================
 build/
 develop-eggs/
 dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
 
-# ==========================================
-# Archivos específicos de DataBlueprint
-# ==========================================
-# Archivos de log
+# =========================
+# Testing y Logs
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/
 *.log
 
-# Reportes generados
-*_blueprint.md
-*_blueprint.json
-
-# Datos crudos y sensibles 
-# *.csv
-# *.parquet
-# *.jsonl
-
-# Permitir explícitamente los datos de prueba falsos
-!sample_data/*.csv
-!sample_data/*.parquet
-!sample_data/*.json
-
-# ==========================================
-# Editores y Entornos de Desarrollo (IDE)
-# ==========================================
-.vscode/
-.idea/
-*.swp
-*.swo
-.pydevproject
-
-# ==========================================
+# =========================
 # Archivos del Sistema Operativo
-# ==========================================
+# =========================
 .DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-ehthumbs_vista.db
 Thumbs.db
+
+# =========================
+# Editores de Codigo (IDE)
+# =========================
+.vscode/
+.idea/
+*.swp
+
+# =========================
+# Archivos generados por DataBlueprint
+# =========================
+# Ignoramos los reportes para no filtrar esquemas o metadatos por error
+*_blueprint.json
+*_blueprint.md
