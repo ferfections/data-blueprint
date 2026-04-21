@@ -28,21 +28,21 @@ Ademas, incluye un motor de validacion de contratos de datos para detectar mutac
 El proyecto requiere Python 3.9 o superior y funciona mediante un CLI (Command Line Interface).
 
 1. Clona el repositorio:
-   '''bash
+   ```bash
    git clone https://github.com/ferfections/data-blueprint.git
    cd DataBlueprint
-   '''
+   ```
 
 2. Crea y activa un entorno virtual (Recomendado):
-   '''bash
+   ```bash
    python -m venv .venv
    source .venv/bin/activate  # En Windows usa: .venv\Scripts\activate
-   '''
+   ```
 
 3. Instala el paquete en modo editable (esto instalara Polars y configurara el comando CLI):
-   '''bash
+   ```bash
    pip install -e .
-   '''
+   ```
 
 ---
 
@@ -54,14 +54,14 @@ Una vez instalado, el comando `data-blueprint` estara disponible globalmente en 
 Para extraer los metadatos de un archivo o de una carpeta entera, pasa la ruta como argumento.
 
 # Analizar un directorio completo (Recomendado)
-'''bash
+```bash
 data-blueprint ruta/a/mi_landing_zone/
-'''
+```
 
 # Analizar un archivo individual
-'''bash
+```bash
 data-blueprint ruta/a/mis_datos/clientes.parquet
-'''
+```
 
 **Salida:** El programa generara dos archivos en el directorio donde ejecutaste el comando:
 * `[nombre]_blueprint.md`: Resumen tabular listo para lectura humana o para adjuntar a ChatGPT/Claude.
@@ -70,9 +70,9 @@ data-blueprint ruta/a/mis_datos/clientes.parquet
 ### 2. Deteccion de Schema Drift (Auditoria)
 Para comprobar si la estructura de tus datos ha mutado sin previo aviso, puedes comparar un Blueprint que generaste en el pasado (tu "contrato") con uno generado hoy.
 
-'''bash
+```bash
 data-blueprint --compare contrato_ayer.json datos_hoy.json
-'''
+```
 
 **Salida:** El sistema analizara ambos archivos e imprimira por terminal un reporte critico si detecta:
 * Archivos desaparecidos.
