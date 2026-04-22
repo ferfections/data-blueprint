@@ -57,6 +57,12 @@ def _extract_metadata(df: pl.DataFrame, file_path: Path) -> Dict[str, Any]:
         # TODO TopN frequencies (Top 3: ["Madrid" (40%), "Barcelona" (30%), "Valencia" (10%)])
         # TODO length metrics (min_length, max_length, mean_length)
         # TODO blanks vs voids
+
+        # TODO pattern recognition (regex)
+        # TODO % of numerics
+        # TODO % of alfab
+        # TODO % of UUID
+        # TODO % of email/URL
             
         schema_metadata[col_name] = col_info
         
