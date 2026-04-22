@@ -146,11 +146,40 @@ def _extract_metadata(df: pl.DataFrame, file_path: Path) -> Dict[str, Any]:
                     col_info["empty_strings_perc"] = round((empty_count / total_valid) * 100, 2)
                     col_info["void_strings_perc"] = round((void_count / total_valid) * 100, 2)
 
-        # TODO pattern recognition (regex)
-        # TODO % of numerics
-        # TODO % of alfab
-        # TODO % of UUID
-        # TODO % of email/URL
+                    # 4. Reconocimiento de Patrones Semánticos (Regex)
+                    # Definimos expresiones regulares estrictas (ancladas con ^ y $)
+                    REGEX_NUMERIC = r"^\d+$"
+                    # Incluimos espacios, tildes y ñ para el soporte alfabético en español
+                    REGEX_ALPHA = r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" 
+                    REGEX_UUID = r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+                    REGEX_EMAIL = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+                    REGEX_URL = r"^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$"
+
+                    # Polars ejecuta str.contains a velocidad extrema en Rust
+                    num_count = valid_series.str.contains(REGEX_NUMERIC).sum()
+                    alpha_count = valid_series.str.contains(REGEX_ALPHA).sum()
+                    uuid_count = valid_series.str.contains(REGEX_UUID).sum()
+                    email_count = valid_series.str.contains(REGEX_EMAIL).sum()
+                    url_count = valid_series.str.contains(REGEX_URL).sum()
+
+                    # Calculamos porcentajes
+                    perc_num = round((num_count / total_valid) * 100, 2)
+                    perc_alpha = round((alpha_count / total_valid) * 100, 2)
+                    perc_uuid = round((uuid_count / total_valid) * 100, 2)
+                    perc_email = round((email_count / total_valid) * 100, 2)
+                    perc_url = round((url_count / total_valid) * 100, 2)
+
+                    # ESTRATEGIA DE TOKEN DENSITY: Solo adjuntamos la información si es relevante.
+                    # Agrupamos los patrones encontrados en un solo string para que la IA lo lea como una frase.
+                    patterns_found = []
+                    if perc_num > 0: patterns_found.append(f"Numeric Only: {perc_num}%")
+                    if perc_alpha > 0: patterns_found.append(f"Alpha Only: {perc_alpha}%")
+                    if perc_uuid > 0: patterns_found.append(f"UUID: {perc_uuid}%")
+                    if perc_email > 0: patterns_found.append(f"Email: {perc_email}%")
+                    if perc_url > 0: patterns_found.append(f"URL: {perc_url}%")
+
+                    if patterns_found:
+                        col_info["semantic_patterns"] = ", ".join(patterns_found)
 
         # TODO time-series data
         # TODO min_date, max_date
