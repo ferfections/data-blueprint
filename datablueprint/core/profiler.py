@@ -91,7 +91,7 @@ def _extract_metadata(df: pl.DataFrame, file_path: Path) -> Dict[str, Any]:
                         
                     col_info["histogram"] = ", ".join(hist_parts)
                 except Exception:
-                    col_info["histogram"] = "N/A"
+                    pass # Omitimos la clave por completo para ahorrar tokens
 
         # ==========================================
         # DATOS DE TEXTO (Strings y Categoricos)
