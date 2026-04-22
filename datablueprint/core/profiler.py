@@ -47,6 +47,10 @@ def _extract_metadata(df: pl.DataFrame, file_path: Path) -> Dict[str, Any]:
             col_info["min"] = series.min()
             col_info["max"] = series.max()
             col_info["mean"] = round(series.mean(), 4) if series.mean() is not None else None
+
+        # TODO dispersion metrics (std_dev, variance)
+        # TODO percentils (p25, p50, p75, p95)
+        # TODO zeros_perc, negatives_perc
             
         schema_metadata[col_name] = col_info
         
