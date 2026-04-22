@@ -102,18 +102,22 @@ def _extract_metadata(df: pl.DataFrame, file_path: Path) -> Dict[str, Any]:
 
             if total_valid > 0:
                 try:
-                    top_counts = valid_series.value_counts(sort=True).head(3)
-                    count_col = "count" if "count" in top_counts.columns else "counts"
-                    val_col = top_counts.columns[0]
-                    
-                    top_parts = []
-                    for row in top_counts.iter_rows(named=True):
-                        val = row[val_col]
-                        cnt = row[count_col]
-                        perc = round((cnt / total_valid) * 100, 1)
-                        top_parts.append(f'"{val}" ({perc}%)')
-                    
-                    col_info["top_3_values"] = f"[{', '.join(top_parts)}]"
+                    if (series.n_unique() / total_valid) < 0.90:
+                        try:
+                            top_counts = valid_series.value_counts(sort=True).head(3)
+                            count_col = "count" if "count" in top_counts.columns else "counts"
+                            val_col = top_counts.columns[0]
+                            
+                            top_parts = []
+                            for row in top_counts.iter_rows(named=True):
+                                val = row[val_col]
+                                cnt = row[count_col]
+                                perc = round((cnt / total_valid) * 100, 1)
+                                top_parts.append(f'"{val}" ({perc}%)')
+                            
+                            col_info["top_3_values"] = f"[{', '.join(top_parts)}]"
+                        except Exception:
+                            pass # Omitimos si falla
                 except Exception:
                     col_info["top_3_values"] = "N/A"
 
