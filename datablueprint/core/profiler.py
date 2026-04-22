@@ -63,6 +63,12 @@ def _extract_metadata(df: pl.DataFrame, file_path: Path) -> Dict[str, Any]:
         # TODO % of alfab
         # TODO % of UUID
         # TODO % of email/URL
+
+        # TODO time-series data
+        # TODO min_date, max_date
+        # TODO time_span
+        # TODO frequency distribution (day of the week, month)
+        # TODO time zone validation
             
         schema_metadata[col_name] = col_info
         
