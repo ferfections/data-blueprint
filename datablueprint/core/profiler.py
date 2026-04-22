@@ -40,6 +40,7 @@ def _extract_metadata(df: pl.DataFrame, file_path: Path) -> Dict[str, Any]:
             "null_count": null_count,
             "null_percentage": round((null_count / rows * 100), 2) if rows > 0 else 0.0,
             "unique_values": series.n_unique()
+            # TODO memory_usage
         }
         
         if series.dtype in pl.NUMERIC_DTYPES:
