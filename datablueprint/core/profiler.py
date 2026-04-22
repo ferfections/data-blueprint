@@ -51,6 +51,12 @@ def _extract_metadata(df: pl.DataFrame, file_path: Path) -> Dict[str, Any]:
         # TODO dispersion metrics (std_dev, variance)
         # TODO percentils (p25, p50, p75, p95)
         # TODO zeros_perc, negatives_perc
+        # TODO compressed histogram ([0-10: 45%, 10-20: 30%, 20+: 25%])
+
+
+        # TODO TopN frequencies (Top 3: ["Madrid" (40%), "Barcelona" (30%), "Valencia" (10%)])
+        # TODO length metrics (min_length, max_length, mean_length)
+        # TODO blanks vs voids
             
         schema_metadata[col_name] = col_info
         
