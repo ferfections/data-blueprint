@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 from datablueprint.backend.core.config import settings
 from datablueprint.backend.routers import files
+from datablueprint.backend.routers import files, chat
 
 # Configuración del logger para ver qué pasa en la consola
 logging.basicConfig(
