@@ -83,8 +83,15 @@ def generate_sql_ddl(blueprint_data: List[Dict[str, Any]]) -> str:
                 line = f"    {safe_col_name} {sql_type}"
                 if constraint_str:
                     line += f" {constraint_str}"
+                
+                suggested = col_info.get("suggested_values")
+                if suggested:
+                    # Convertimos la lista a un texto separado por comas
+                    valores_texto = ", ".join([str(v) for v in suggested])
+                    line += f" -- Valores reales: {valores_texto}"
                     
                 columns_sql.append(line)
+
                 
             create_statement = f"CREATE TABLE {table_name} (\n" + ",\n".join(columns_sql) + "\n);"
             sql_statements.append(create_statement)
