@@ -271,3 +271,19 @@ def process_json(file_path: Path) -> Dict[str, Any]:
         df = pl.read_json(file_path)
         
     return _extract_metadata(df, file_path)
+
+def process_file(file_path: Path) -> Dict[str, Any]:
+    """
+    Función enrutadora (Dispatcher): Detecta la extensión del archivo 
+    y llama a la función específica de Polars correspondiente.
+    """
+    ext = file_path.suffix.lower()
+    
+    if ext == '.csv':
+        return process_csv(file_path)
+    elif ext in ['.parquet', '.pqt']:
+        return process_parquet(file_path)
+    elif ext in ['.json', '.jsonl']:
+        return process_json(file_path)
+    else:
+        raise ValueError(f"Formato de archivo no soportado: {ext}")
