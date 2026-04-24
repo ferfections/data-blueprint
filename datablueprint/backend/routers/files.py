@@ -22,24 +22,28 @@ async def upload_files(files: List[UploadFile] = File(...)):
     try:
         processed_files = []
         
-        # 1. Limpiamos el workspace anterior para que no se mezclen contextos
+        # 1. Limpiamos el workspace anterior
         for existing_file in settings.WORKSPACE_DIR.glob("*"):
             existing_file.unlink()
             
-        # 2. Procesamos cada archivo de la lista
+        # 2. Procesamos cada archivo
         for file in files:
-            file_location = settings.WORKSPACE_DIR / file.filename
+            content = await file.read()
             
-            with open(file_location, "wb+") as file_object:
-                file_object.write(await file.read())
+            # PROTECCIÓN: Si el archivo está vacío, lanzamos un 400 controlado
+            if not content:
+                raise HTTPException(status_code=400, detail=f"El archivo {file.filename} está vacío.")
                 
-            # Extraemos los metadatos usando Polars
+            file_location = settings.WORKSPACE_DIR / file.filename
+            with open(file_location, "wb+") as file_object:
+                file_object.write(content)
+                
+            # Extraemos los metadatos
             metadata = process_file(file_location)
             processed_files.append(metadata)
             
-        # 3. Generamos el "Blueprint" (El mapa SQL para la IA)
+        # 3. Generamos el Blueprint
         blueprint_sql = generate_sql_ddl(processed_files)
-        
         context_path = settings.WORKSPACE_DIR / "context_blueprint.sql"
         with open(context_path, "w", encoding="utf-8") as f:
             f.write(blueprint_sql)
@@ -50,6 +54,10 @@ async def upload_files(files: List[UploadFile] = File(...)):
             global_context_saved=True
         )
 
+    # NUEVO: Dejamos pasar los errores HTTP controlados (como nuestro 400)
+    except HTTPException:
+        raise
+    # Atrapamos fallos reales del sistema y los marcamos como 500
     except Exception as e:
         logger.error(f"Error procesando archivos: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
