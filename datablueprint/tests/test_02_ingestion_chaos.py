@@ -1,0 +1,1 @@
+# El "Dataset del Caos": estresa a Polars con archivos corruptos y sucios
