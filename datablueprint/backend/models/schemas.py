@@ -43,3 +43,8 @@ class ChatResponse(BaseModel):
     # Aquí podríamos añadir una lista de diccionarios si queremos enviar los datos reales 
     # de la tabla para que Next.js pinte una tabla bonita.
     data_sample: Optional[List[Dict[str, Any]]] = None
+
+class UploadResponse(BaseModel):
+    status: str
+    processed_files: List[Dict[str, Any]]
+    global_context_saved: bool
