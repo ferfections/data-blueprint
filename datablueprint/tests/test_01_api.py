@@ -1,26 +1,58 @@
-# Verifica que el servidor (FastAPI) arranca y responde correctamente
 from fastapi.testclient import TestClient
 from datablueprint.backend.main import app
 
-# Creamos un cliente falso que interactúa con tu API
+# Creamos el cliente de pruebas que interactúa con tu API
 client = TestClient(app)
 
-def test_health_check_funciona_correctamente():
-    """Prueba que el camarero está despierto y respondiendo"""
-    
-    # 1. ACCIÓN: Hacemos una petición GET a la ruta /health
+def test_health_check_devuelve_200_y_estado_online():
+    """
+    Verifica que el API está despierto.
+    Usamos aserciones resilientes (buscamos claves específicas, no el diccionario entero).
+    """
     response = client.get("/health")
     
-    # 2. VALIDACIÓN: Comprobamos el código HTTP (200 significa OK)
+    # Verificamos código HTTP
     assert response.status_code == 200
     
-    # 3. VALIDACIÓN: Comprobamos que el JSON devuelto es exactamente el esperado
-    # 3. VALIDACIÓN: Comprobamos que la clave status es online (ignoramos el resto)
+    # Verificamos estructura del JSON
     data = response.json()
+    assert "status" in data
     assert data["status"] == "online"
-    assert "project" in data # Confirmamos que también envía la info del proyecto
+    assert "project" in data
+    assert "version" in data
 
-def test_ruta_no_existente_da_error_404():
-    """Prueba que el sistema maneja bien las rutas que no existen"""
-    response = client.get("/ruta-inventada")
+def test_ruta_no_existente_devuelve_404():
+    """Verifica que el sistema maneja bien las rutas que no existen."""
+    response = client.get("/api/v1/ruta-inventada-que-no-existe")
+    
     assert response.status_code == 404
+    assert response.json() == {"detail": "Not Found"}
+
+def test_metodo_http_incorrecto_devuelve_405():
+    """
+    Verifica que la API protege sus endpoints contra verbos HTTP incorrectos.
+    Ejemplo: Intentar hacer un POST a una ruta que solo acepta GET.
+    """
+    response = client.post("/health")
+    
+    # 405 significa "Method Not Allowed" (Método no permitido)
+    assert response.status_code == 405
+
+def test_documentacion_swagger_esta_accesible():
+    """
+    Verifica que FastAPI está generando el panel de control gráfico (Swagger)
+    y el esquema OpenAPI correctamente.
+    """
+    # 1. Comprobamos la página web (HTML)
+    response_docs = client.get("/docs")
+    assert response_docs.status_code == 200
+    assert "text/html" in response_docs.headers["content-type"]
+    
+    # 2. Comprobamos el JSON puro que alimenta a Swagger
+    # (Ajustado a la ruta versionada de tu arquitectura)
+    response_openapi = client.get("/api/v1/openapi.json")
+    assert response_openapi.status_code == 200
+    
+    data_openapi = response_openapi.json()
+    assert "openapi" in data_openapi
+    assert "info" in data_openapi
