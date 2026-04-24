@@ -13,18 +13,25 @@ def generate_sql_and_answer(user_prompt: str, ddl_context: str) -> dict:
     Envía la pregunta y el esquema a la IA de Groq (Llama 3), 
     forzando una respuesta estricta en formato JSON.
     """
+
     system_prompt = f"""Eres un Ingeniero de Datos experto.
-Tu objetivo es traducir preguntas de lenguaje natural a SQL (dialecto DuckDB).
+    Tu objetivo es traducir preguntas de lenguaje natural a SQL (dialecto DuckDB).
 
-REGLAS ESTRICTAS:
-1. Responde ÚNICAMENTE con un objeto JSON válido. Nada de saludos, nada de Markdown.
-2. El JSON debe tener exactamente dos claves:
-   - "query_sql": El código SQL puro y ejecutable. Asegúrate de usar los nombres de tabla y columnas exactos que aparecen en el DDL.
-   - "text_response": Una respuesta amable y directa para el usuario explicando la métrica que estás calculando.
+    REGLAS ESTRICTAS DE FORMATO:
+    1. Responde ÚNICAMENTE con un objeto JSON válido. Nada de saludos ni texto adicional.
+    2. El JSON debe tener exactamente estas dos claves:
+    - "query_sql": El código SQL ejecutable en DuckDB.
+    - "text_response": Una respuesta amigable al usuario.
 
-ESQUEMA DDL (Este es el contexto de la base de datos local):
-{ddl_context}
-"""
+    REGLAS DE MAPPING SEMÁNTICO (IMPORTANTE):
+    - Si el usuario menciona un estado (ej. 'pagado'), busca el valor equivalente más lógico en el esquema o asume su traducción (ej. 'paid', 'completed').
+    - Si el usuario menciona un país en español, tradúcelo al idioma de los datos (ej. 'España' -> 'Spain').
+    - SIEMPRE usa LIKE o ILIKE para comparaciones de texto en el SQL si no estás seguro del valor exacto.
+
+    CONTEXTO DE DATOS (ESQUEMA DDL):
+    {ddl_context}
+    """
+    
 
     try:
         logger.info("Enviando contexto y pregunta a Groq...")
@@ -34,7 +41,7 @@ ESQUEMA DDL (Este es el contexto de la base de datos local):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            model="llama3-8b-8192", # Usamos el modelo más rápido de Llama 3
+            model="llama-3.3-70b-versatile", 
             temperature=0.1,        # Temperatura casi a 0 para máxima precisión matemática
             response_format={"type": "json_object"} # ¡LA MAGIA! Fuerza a devolver un JSON parseable
         )
