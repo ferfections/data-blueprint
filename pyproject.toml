@@ -37,3 +37,8 @@ data-blueprint = "datablueprint.cli:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["datablueprint*"]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
