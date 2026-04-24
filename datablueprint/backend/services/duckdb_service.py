@@ -1,29 +1,28 @@
 import duckdb
 import logging
-from typing import Dict, Any, List
+from pathlib import Path
+from datablueprint.backend.core.config import settings
 
 logger = logging.getLogger("DataBlueprint.API.DuckDB")
 
-def execute_local_query(sql_query: str) -> List[Dict[str, Any]]:
-    """
-    Ejecuta una consulta SQL en memoria utilizando DuckDB.
-    DuckDB es capaz de leer archivos directamente desde el disco (workspace/)
-    si el SQL contiene rutas como: SELECT * FROM 'workspace/archivo.csv'
-    """
+def execute_local_query(sql_query: str) -> list:
     try:
-        logger.info(f"Ejecutando SQL en DuckDB:\n{sql_query}")
-        
-        # Conectamos a una base de datos temporal en memoria
+        # Iniciamos conexión
         with duckdb.connect(database=':memory:') as con:
-            # Ejecutamos la consulta y transformamos el resultado en un DataFrame
-            # y luego en una lista de diccionarios (facil de enviar por API)
+            # 1. ESCANEO Y REGISTRO AUTOMÁTICO
+            # Buscamos todos los archivos en el workspace y los registramos como vistas
+            for file_path in settings.WORKSPACE_DIR.glob("*"):
+                if file_path.suffix in ['.csv', '.parquet', '.json']:
+                    table_name = file_path.stem # 'order_items'
+                    # Registramos la vista para que el SQL "SELECT ... FROM order_items" funcione
+                    con.execute(f"CREATE VIEW IF NOT EXISTS {table_name} AS SELECT * FROM '{file_path}'")
+                    logger.info(f"Tabla registrada: {table_name}")
+
+            # 2. EJECUCIÓN DE LA CONSULTA
             result_df = con.execute(sql_query).df()
-            
-            # Reemplazamos posibles valores NaN o NaT por None para que JSON no se queje
             result_df = result_df.replace({float('nan'): None})
-            
             return result_df.to_dict(orient='records')
             
     except Exception as e:
-        logger.error(f"Error ejecutando consulta en DuckDB: {str(e)}")
-        raise ValueError(f"Fallo en la ejecucion SQL: {str(e)}")
+        logger.error(f"Error en DuckDB: {str(e)}")
+        raise e
