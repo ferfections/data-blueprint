@@ -1,0 +1,1 @@
+# Al límite matemático: prueba divisiones por cero, agrupaciones complejas y nulos en DuckDB
