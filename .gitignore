@@ -58,3 +58,4 @@ Thumbs.db
 # Ignoramos los reportes para no filtrar esquemas o metadatos por error
 blueprints/
 .env
+/datablueprint/backend/workspace
