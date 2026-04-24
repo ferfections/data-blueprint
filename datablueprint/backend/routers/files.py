@@ -11,13 +11,15 @@ from datablueprint.formatters.ddl_generator import generate_sql_ddl
 router = APIRouter()
 
 @router.post("/upload", response_model=BlueprintGenerationResponse)
-async def upload_files(files: List[UploadFile] = File(...)):
-    """
-    Recibe uno o varios archivos, los guarda en el workspace y genera su Blueprint.
-    """
+async def upload_files(file: UploadFile = File(...)):
+    
+    # Metemos el archivo único en una lista para no romper tu código de abajo
+    files = [file] 
+    
     if not files:
         raise HTTPException(status_code=400, detail="No se enviaron archivos")
         
+    # ... (el resto de tu código se queda exactamente igual) ...
     processed_summaries = []
     all_metadata = []
     
