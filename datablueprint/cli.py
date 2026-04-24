@@ -96,24 +96,29 @@ def main() -> None:
             logger.error(f"Error procesando {file_path.name}: {str(e)}")
 
     if all_metadata:
-        project_root = Path.cwd() # Usamos Current Working Directory para guardar donde se ejecuta el comando
+        # Definimos y creamos la carpeta de salida
+        output_dir = Path.cwd() / "blueprints"
+        output_dir.mkdir(exist_ok=True)
+        
         input_name = target_path.name if target_path.is_dir() else target_path.stem
         
-        md_path = project_root / f"{input_name}_blueprint.md"
+        # Guardamos todo dentro de la carpeta 'blueprints'
+        md_path = output_dir / f"{input_name}_blueprint.md"
+        json_path = output_dir / f"{input_name}_blueprint.json"
+        sql_path = output_dir / f"{input_name}_blueprint.sql"
+        
         with open(md_path, "w", encoding="utf-8") as f:
             f.write(generate_aggregated_markdown(all_metadata, input_name))
         
         # JSON Generator
-        json_path = project_root / f"{input_name}_blueprint.json"
         with open(json_path, "w", encoding="utf-8") as f:
             f.write(generate_aggregated_json(all_metadata, input_name))
 
         # SQL DDL Generator
-        sql_path = project_root / f"{input_name}_blueprint.sql"
         with open(sql_path, "w", encoding="utf-8") as f:
             f.write(generate_sql_ddl(all_metadata))
             
-        logger.info(f"Reportes generados en {project_root}")
+        logger.info(f"Reportes generados en {output_dir}")
 
 if __name__ == "__main__":
     main()
