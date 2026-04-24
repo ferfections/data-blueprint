@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from datablueprint.backend.core.config import settings
+from datablueprint.backend.routers import files
 
 # Configuración del logger para ver qué pasa en la consola
 logging.basicConfig(
@@ -55,3 +56,6 @@ async def health_check():
         "project": settings.PROJECT_NAME, 
         "version": settings.VERSION
     }
+
+# Conectamos las rutas de ingesta de archivos
+app.include_router(files.router, prefix=f"{settings.API_V1_STR}/files", tags=["Ingestion"])
