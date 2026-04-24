@@ -7,6 +7,8 @@ from datablueprint.backend.core.config import settings
 from datablueprint.backend.routers import files
 from datablueprint.backend.routers import files, chat
 
+
+
 # Configuración del logger para ver qué pasa en la consola
 logging.basicConfig(
     level=logging.INFO,
@@ -38,6 +40,9 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     lifespan=lifespan
 )
+
+# Conectamos la ruta del chatbot
+app.include_router(chat.router, prefix=f"{settings.API_V1_STR}/chat", tags=["AI Chatbot"])
 
 # Configuramos CORS para permitir peticiones desde el navegador (Next.js)
 if settings.BACKEND_CORS_ORIGINS:
