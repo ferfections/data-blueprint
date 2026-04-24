@@ -8,6 +8,7 @@ from datablueprint.security.pii_masker import sanitize_sample
 from datablueprint.formatters.markdown_generator import generate_aggregated_markdown
 from datablueprint.formatters.json_generator import generate_aggregated_json
 from datablueprint.core.drift_detector import compare_blueprints
+from datablueprint.formatters.ddl_generator import generate_sql_ddl
 
 logging.basicConfig(
     level=logging.INFO,
@@ -102,9 +103,15 @@ def main() -> None:
         with open(md_path, "w", encoding="utf-8") as f:
             f.write(generate_aggregated_markdown(all_metadata, input_name))
         
+        # JSON Generator
         json_path = project_root / f"{input_name}_blueprint.json"
         with open(json_path, "w", encoding="utf-8") as f:
             f.write(generate_aggregated_json(all_metadata, input_name))
+
+        # SQL DDL Generator
+        sql_path = project_root / f"{input_name}_blueprint.sql"
+        with open(sql_path, "w", encoding="utf-8") as f:
+            f.write(generate_sql_ddl(all_metadata))
             
         logger.info(f"Reportes generados en {project_root}")
 
