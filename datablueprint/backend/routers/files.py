@@ -1,64 +1,54 @@
 import shutil
+import logging
 from pathlib import Path
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from typing import List
 
 from datablueprint.backend.core.config import settings
-from datablueprint.backend.models.schemas import BlueprintGenerationResponse, FileMetadataSummary
+from datablueprint.backend.models.schemas import BlueprintGenerationResponse, FileMetadataSummary, UploadResponse
 from datablueprint.backend.services.profiler_service import generate_blueprint_for_file
 from datablueprint.formatters.ddl_generator import generate_sql_ddl
 
+
+logger = logging.getLogger("DataBlueprint.API.Chat")
 router = APIRouter()
 
-@router.post("/upload", response_model=BlueprintGenerationResponse)
-async def upload_files(file: UploadFile = File(...)):
-    
-    # Metemos el archivo único en una lista para no romper tu código de abajo
-    files = [file] 
-    
-    if not files:
-        raise HTTPException(status_code=400, detail="No se enviaron archivos")
+@router.post("/upload", response_model=UploadResponse)
+async def upload_files(files: List[UploadFile] = File(...)):
+    """
+    Recibe múltiples archivos, los guarda temporalmente y extrae su DDL y perfiles.
+    """
+    try:
+        processed_files = []
         
-    # ... (el resto de tu código se queda exactamente igual) ...
-    processed_summaries = []
-    all_metadata = []
-    
-    for file in files:
-        # 1. FastAPI guarda el archivo en el almacén (workspace temporal)
-        file_path = settings.WORKSPACE_DIR / file.filename
-        
-        try:
-            with open(file_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
+        # 1. Limpiamos el workspace anterior para que no se mezclen contextos
+        for existing_file in settings.WORKSPACE_DIR.glob("*"):
+            existing_file.unlink()
+            
+        # 2. Procesamos cada archivo de la lista
+        for file in files:
+            file_location = settings.WORKSPACE_DIR / file.filename
+            
+            with open(file_location, "wb+") as file_object:
+                file_object.write(await file.read())
                 
-            # 2. FastAPI le pasa el archivo al core (Polars)
-            metadata = generate_blueprint_for_file(file_path)
-            all_metadata.append(metadata)
+            # Extraemos los metadatos usando Polars
+            metadata = process_file(file_location)
+            processed_files.append(metadata)
             
-            # 3. Empaquetamos el resumen para devolvérselo al Frontend (Next.js)
-            summary = FileMetadataSummary(
-                filename=file.filename,
-                extension=file_path.suffix.lower(),
-                total_rows=metadata["structure"]["total_rows"],
-                total_columns=metadata["structure"]["total_columns"],
-                columns_list=metadata["structure"]["columns_list"]
-            )
-            processed_summaries.append(summary)
+        # 3. Generamos el "Blueprint" (El mapa SQL para la IA)
+        blueprint_sql = generate_sql_ddl(processed_files)
+        
+        context_path = settings.WORKSPACE_DIR / "context_blueprint.sql"
+        with open(context_path, "w", encoding="utf-8") as f:
+            f.write(blueprint_sql)
             
-        except Exception as e:
-            # Si un archivo falla, avisamos exactamente de por qué
-            raise HTTPException(status_code=500, detail=f"Error procesando {file.filename}: {str(e)}")
-            
-    # 4. Generamos el esquema DDL de todos los archivos juntos y lo guardamos
-    # Esto será el "Contexto" que le enviaremos a la IA más adelante.
-    if all_metadata:
-        sql_context = generate_sql_ddl(all_metadata)
-        sql_path = settings.WORKSPACE_DIR / "context_blueprint.sql"
-        with open(sql_path, "w", encoding="utf-8") as f:
-            f.write(sql_context)
-            
-    return BlueprintGenerationResponse(
-        message="Blueprints y contexto SQL generados correctamente",
-        status="success",
-        processed_files=processed_summaries
-    )
+        return UploadResponse(
+            status="success",
+            processed_files=processed_files,
+            global_context_saved=True
+        )
+
+    except Exception as e:
+        logger.error(f"Error procesando archivos: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
