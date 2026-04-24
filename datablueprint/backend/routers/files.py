@@ -8,6 +8,7 @@ from datablueprint.backend.core.config import settings
 from datablueprint.backend.models.schemas import BlueprintGenerationResponse, FileMetadataSummary, UploadResponse
 from datablueprint.backend.services.profiler_service import generate_blueprint_for_file
 from datablueprint.formatters.ddl_generator import generate_sql_ddl
+from datablueprint.core.profiler import process_file
 
 
 logger = logging.getLogger("DataBlueprint.API.Chat")
