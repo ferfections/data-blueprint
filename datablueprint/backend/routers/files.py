@@ -29,7 +29,7 @@ async def upload_files(files: List[UploadFile] = File(...)):
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
                 
-            # 2. FastAPI le pasa el archivo a la "Cocina" (Polars)
+            # 2. FastAPI le pasa el archivo al core (Polars)
             metadata = generate_blueprint_for_file(file_path)
             all_metadata.append(metadata)
             
