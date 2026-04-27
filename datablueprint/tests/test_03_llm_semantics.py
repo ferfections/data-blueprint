@@ -1,0 +1,1 @@
+# Estresa a Groq: prueba traducciones, ambigüedades y generación de SQL

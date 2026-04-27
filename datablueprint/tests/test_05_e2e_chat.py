@@ -1,0 +1,1 @@
+# End-to-End (E2E): Simula a un usuario real haciendo el circuito completo desde la ingesta hasta la respuesta de la IA

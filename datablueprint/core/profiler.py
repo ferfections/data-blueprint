@@ -35,6 +35,8 @@ def _extract_metadata(df: pl.DataFrame, file_path: Path) -> Dict[str, Any]:
         dtype_str = str(series.dtype)
         null_count = series.null_count()
         
+        num_unique = series.n_unique() # Lo calculamos una sola vez
+
         # Base de metadatos universal para todas las columnas
         col_info = {
             "data_type": dtype_str,
@@ -43,6 +45,19 @@ def _extract_metadata(df: pl.DataFrame, file_path: Path) -> Dict[str, Any]:
             "unique_values": series.n_unique(),
             "memory_bytes": series.estimated_size() # Resuelto el TODO de uso de memoria
         }
+
+        # 1. Calculamos cuántos valores únicos hay en total
+        col_info["unique_count"] = num_unique
+
+        # 2. Aplicamos nuestras heurísticas (Texto y <= 20 valores)
+        dtype_str = str(df[col_name].dtype)
+        is_text_type = "String" in dtype_str or "Utf8" in dtype_str or "Categorical" in dtype_str
+
+        if is_text_type and 0 < num_unique <= 20:
+            # Extraemos los valores ignorando los nulos
+            unique_values_list = df[col_name].drop_nulls().unique().to_list()
+            # Los guardamos en el diccionario para el Blueprint
+            col_info["suggested_values"] = unique_values_list
         
         # ==========================================
         # DATOS NUMERICOS
@@ -256,3 +271,19 @@ def process_json(file_path: Path) -> Dict[str, Any]:
         df = pl.read_json(file_path)
         
     return _extract_metadata(df, file_path)
+
+def process_file(file_path: Path) -> Dict[str, Any]:
+    """
+    Función enrutadora (Dispatcher): Detecta la extensión del archivo 
+    y llama a la función específica de Polars correspondiente.
+    """
+    ext = file_path.suffix.lower()
+    
+    if ext == '.csv':
+        return process_csv(file_path)
+    elif ext in ['.parquet', '.pqt']:
+        return process_parquet(file_path)
+    elif ext in ['.json', '.jsonl']:
+        return process_json(file_path)
+    else:
+        raise ValueError(f"Formato de archivo no soportado: {ext}")

@@ -56,5 +56,6 @@ Thumbs.db
 # Archivos generados por DataBlueprint
 # =========================
 # Ignoramos los reportes para no filtrar esquemas o metadatos por error
-*_blueprint.json
-*_blueprint.md
+blueprints/
+.env
+/datablueprint/backend/workspace

@@ -1,0 +1,1 @@
+# Archivo especial de pytest: aquí guardaremos la configuración global y datos falsos (fixtures)

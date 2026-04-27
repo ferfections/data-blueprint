@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "data-blueprint"
 version = "0.1.0"
 authors = [
-  { name="Fernando Navarro", email="tu-email@ejemplo.com" },
+  { name="Fernando Navarro", email="fnavarrogonzalez26@gmail.com" },
 ]
 description = "Motor de perfilado de datos y generacion de contexto seguro para IA"
 readme = "README.md"
@@ -28,8 +28,8 @@ dependencies = [
 dev = ["build", "twine", "pytest"]
 
 [project.urls]
-"Homepage" = "https://github.com/tu-usuario/data-blueprint"
-"Bug Tracker" = "https://github.com/tu-usuario/data-blueprint/issues"
+"Homepage" = "https://github.com/ferfections/data-blueprint.git"
+"Bug Tracker" = "https://github.com/ferfections/data-blueprint.git/issues"
 
 [project.scripts]
 data-blueprint = "datablueprint.cli:main"
@@ -37,3 +37,8 @@ data-blueprint = "datablueprint.cli:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["datablueprint*"]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
