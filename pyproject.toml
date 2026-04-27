@@ -28,8 +28,8 @@ dependencies = [
 dev = ["build", "twine", "pytest"]
 
 [project.urls]
-"Homepage" = "https://github.com/tu-usuario/data-blueprint"
-"Bug Tracker" = "https://github.com/tu-usuario/data-blueprint/issues"
+"Homepage" = "https://github.com/ferfections/data-blueprint.git"
+"Bug Tracker" = "https://github.com/ferfections/data-blueprint.git/issues"
 
 [project.scripts]
 data-blueprint = "datablueprint.cli:main"
