@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "data-blueprint"
 version = "0.1.0"
 authors = [
-  { name="Fernando Navarro", email="tu-email@ejemplo.com" },
+  { name="Fernando Navarro", email="fnavarrogonzalez26@gmail.com" },
 ]
 description = "Motor de perfilado de datos y generacion de contexto seguro para IA"
 readme = "README.md"
